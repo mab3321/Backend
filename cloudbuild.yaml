@@ -47,15 +47,9 @@ steps:
       ]
   # [END cloudbuild_python_deploy_yaml]
 
-# [START cloudbuild_python_logs_yaml]
-# Save test logs to Google Cloud Storage
-artifacts:
-  objects:
-    location: gs://${_BUCKET_NAME}/
-    paths:
-      - ${SHORT_SHA}_test_log.xml
-# [END cloudbuild_python_logs_yaml]
-# Store images in Google Artifact Registry
-# [END cloudbuild_python_yaml]
+substitutions:
+  _IMAGE: my-image-name
+
+images: [$_IMAGE:$COMMIT_SHA]
 options:
   logging: CLOUD_LOGGING_ONLY
