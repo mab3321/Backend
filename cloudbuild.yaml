@@ -45,6 +45,11 @@ steps:
         "managed",
         "--allow-unauthenticated",
       ]
+  - name: google/cloud-sdk
+    args:
+      [
+   "gcloud","run" ,"services", "add-iam-policy-binding","backend","--member","allUsers","--role","roles/run.invoker" 
+      ]
   # [END cloudbuild_python_deploy_yaml]
 
 substitutions:
