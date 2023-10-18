@@ -18,34 +18,32 @@ steps:
   - name: python
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
-  # [END cloudbuild_python_dependencies_yaml]
+# [END cloudbuild_python_dependencies_yaml]
 
   # [START cloudbuild_python_image_yaml]
+  # Docker Build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 
+           'us-central1-docker.pkg.dev/${PROJECT_ID}/myimage:${SHORT_SHA}', '.']
 
+
+  # [END cloudbuild_python_image_yaml]
+
+  # [START cloudbuild_python_push_yaml]
+  # Docker push to Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push',  'us-central1-docker.pkg.dev/${PROJECT_ID}/myimage:${SHORT_SHA}']
+  # [END cloudbuild_python_push_yaml]
+  
   # [START cloudbuild_python_deploy_yaml]
   # Deploy to Cloud Run
-  - name: google/cloud-sdk
-    args:
-      [
-   "gcloud","builds" ,"submit", "--tag", "gcr.io/resonant-fiber-378707/flask"
-      ]
-  - name: google/cloud-sdk
-    args:
-      [
-        "gcloud",
-        "run",
-        "deploy",
-        "helloworld-${SHORT_SHA}",
-        "--image",
-        "gcr.io/resonant-fiber-378707/flask",
-        "--region",
-        "us-central1",
-        "--platform",
-        "managed",
-        "--allow-unauthenticated",
-      ]
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args: ['gcloud', 'run', 'deploy', 'backend-${SHORT_SHA}', 
+           '--image=us-central1-docker.pkg.dev/${PROJECT_ID}/myimage:${SHORT_SHA}', 
+           '--region', 'us-central1', '--platform', 'managed', 
+           '--allow-unauthenticated']
   # [END cloudbuild_python_deploy_yaml]
-
+  
 # [START cloudbuild_python_logs_yaml]
 # Save test logs to Google Cloud Storage
 artifacts:
@@ -54,7 +52,7 @@ artifacts:
     paths:
       - ${SHORT_SHA}_test_log.xml
 # [END cloudbuild_python_logs_yaml]
-# Store images in Google Artifact Registry
+# Store images in Google Artifact Registry 
 images:
-  - gcr.io/resonant-fiber-378707/flask
+  - us-central1-docker.pkg.dev/${PROJECT_ID}/myimage:${SHORT_SHA}
 # [END cloudbuild_python_yaml]
