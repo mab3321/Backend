@@ -59,3 +59,5 @@ artifacts:
 images:
   - gcr.io/${PROJECT_ID}/flask_${SHORT_SHA}
 # [END cloudbuild_python_yaml]
+options:
+  logging: CLOUD_LOGGING_ONLY
