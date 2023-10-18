@@ -46,3 +46,10 @@ steps:
         "--allow-unauthenticated",
       ]
   # [END cloudbuild_python_deploy_yaml]
+
+substitutions:
+  _IMAGE: my-image-name
+
+images: [$_IMAGE:$COMMIT_SHA]
+options:
+  logging: CLOUD_LOGGING_ONLY
