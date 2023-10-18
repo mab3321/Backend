@@ -1,3 +1,4 @@
+# [END cloudbuild_python_yaml]
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,32 +19,34 @@ steps:
   - name: python
     entrypoint: pip
     args: ["install", "-r", "requirements.txt", "--user"]
-# [END cloudbuild_python_dependencies_yaml]
+  # [END cloudbuild_python_dependencies_yaml]
 
   # [START cloudbuild_python_image_yaml]
-  # Docker Build
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 
-           'us-central1-docker.pkg.dev/${PROJECT_ID}/flask', '.']
 
-
-  # [END cloudbuild_python_image_yaml]
-
-  # [START cloudbuild_python_push_yaml]
-  # Docker push to Google Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push',  'us-central1-docker.pkg.dev/${PROJECT_ID}/flask']
-  # [END cloudbuild_python_push_yaml]
-  
   # [START cloudbuild_python_deploy_yaml]
   # Deploy to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    args: ['gcloud', 'run', 'deploy', 'backend-${SHORT_SHA}', 
-           '--image=us-central1-docker.pkg.dev/${PROJECT_ID}/flask', 
-           '--region', 'us-central1', '--platform', 'managed', 
-           '--allow-unauthenticated']
+  - name: google/cloud-sdk
+    args:
+      [
+   "gcloud","builds" ,"submit", "--tag", "gcr.io/${PROJECT_ID}/flask_${SHORT_SHA}"
+      ]
+  - name: google/cloud-sdk
+    args:
+      [
+        "gcloud",
+        "run",
+        "deploy",
+        "backend-${SHORT_SHA}",
+        "--image",
+        "gcr.io/${PROJECT_ID}/flask_${SHORT_SHA}",
+        "--region",
+        "us-central1",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+      ]
   # [END cloudbuild_python_deploy_yaml]
-  
+
 # [START cloudbuild_python_logs_yaml]
 # Save test logs to Google Cloud Storage
 artifacts:
@@ -52,7 +55,7 @@ artifacts:
     paths:
       - ${SHORT_SHA}_test_log.xml
 # [END cloudbuild_python_logs_yaml]
-# Store images in Google Artifact Registry 
+# Store images in Google Artifact Registry
 images:
-  - us-central1-docker.pkg.dev/${PROJECT_ID}/flask
+  - gcr.io/${PROJECT_ID}/flask_${SHORT_SHA}
 # [END cloudbuild_python_yaml]
