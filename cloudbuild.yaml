@@ -48,7 +48,8 @@ steps:
   - name: google/cloud-sdk
     args:
       [
-   "gcloud","run" ,"services", "add-iam-policy-binding","backend","--member","allUsers","--role","roles/run.invoker" 
+   "gcloud","run" ,"services", "add-iam-policy-binding","backend","--member","allUsers","--role","roles/run.invoker","--region",
+        "us-central1"
       ]
   # [END cloudbuild_python_deploy_yaml]
 
