@@ -15,28 +15,28 @@ CORS(app)
 table_name = "products"
 
 
-def read_file(bucket_name="disney-a2b9f.appspot.com", blob_name="output.csv"):
-    """Read a CSV blob from GCS using file-like IO"""
+# def read_file(bucket_name="disney-a2b9f.appspot.com", blob_name="output.csv"):
+#     """Read a CSV blob from GCS using file-like IO"""
 
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
+#     storage_client = storage.Client()
+#     bucket = storage_client.bucket(bucket_name)
+#     blob = bucket.blob(blob_name)
 
-    # Open the blob for reading
-    file = blob.open("r", encoding="utf-8")
+#     # Open the blob for reading
+#     file = blob.open("r", encoding="utf-8")
 
-    return file
+#     return file
 
 
-def read_data_from_csv(csv_file):
-    data = []
+# def read_data_from_csv(csv_file):
+#     data = []
 
-    # Use the CSV reader to read data from the file
-    csv_reader = csv.DictReader(csv_file)
-    for row in csv_reader:
-        data.append(row)
+#     # Use the CSV reader to read data from the file
+#     csv_reader = csv.DictReader(csv_file)
+#     for row in csv_reader:
+#         data.append(row)
 
-    return data
+#     return data
 
 def Exec_Query(query):
     results = client.query(query)
@@ -44,11 +44,11 @@ def Exec_Query(query):
     result_dict = df.to_dict(orient='records')
     return jsonify(result_dict)
 # Specify the path to your CSV file and encoding
-csv_file_path = read_file()  # Replace with the path to your CSV file
-csv_encoding = 'utf-8'  # Replace with the appropriate encoding if needed
+# csv_file_path = read_file()  # Replace with the path to your CSV file
+# csv_encoding = 'utf-8'  # Replace with the appropriate encoding if needed
 
-# Read data from the CSV file
-data = read_data_from_csv(csv_file_path)
+# # Read data from the CSV file
+# data = read_data_from_csv(csv_file_path)
 
 
 @app.route("/")
@@ -124,4 +124,4 @@ def top_product():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

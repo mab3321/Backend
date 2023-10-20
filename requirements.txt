@@ -1,6 +1,9 @@
 flask
 flask_cors
-google-cloud-storage
-pandas
+google-cloud
+google-cloud-storage==2.12.0
+google-cloud-bigquery==3.12.0
+db-dtypes==1.1.1
+pandas==1.4.4
 gunicorn
 Werkzeug

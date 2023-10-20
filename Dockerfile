@@ -1,21 +1,13 @@
 # Use the official lightweight Python image.
 # https://hub.docker.com/_/python
-FROM python:3.7
+FROM python:3.9.15
 
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
 # Install CMake
 RUN apt-get update && apt-get install -y cmake
-RUN sudo apt-get install -y \
-    build-essential \
-    python3-dev \
-    libsnappy-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    liblz4-dev \
-    libgflags-dev \
-    libzstd-dev
+
 # Copy local code to the container image.
 ENV APP_HOME /app
 WORKDIR $APP_HOME
