@@ -1,4 +1,5 @@
 flask
+pyarrow
 flask_cors
 google-cloud
 google-cloud-storage
