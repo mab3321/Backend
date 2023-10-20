@@ -5,9 +5,14 @@ import random
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import csv
+from google.cloud import bigquery
+from consts.const import data_base_name
+client = bigquery.Client()
+
 
 app = Flask(__name__)
 CORS(app)
+table_name = "products"
 
 
 def read_file(bucket_name="disney-a2b9f.appspot.com", blob_name="output.csv"):
@@ -33,7 +38,11 @@ def read_data_from_csv(csv_file):
 
     return data
 
-
+def Exec_Query(query):
+    results = client.query(query)
+    df = results.to_dataframe()
+    result_dict = df.to_dict(orient='records')
+    return jsonify(result_dict)
 # Specify the path to your CSV file and encoding
 csv_file_path = read_file()  # Replace with the path to your CSV file
 csv_encoding = 'utf-8'  # Replace with the appropriate encoding if needed
@@ -42,17 +51,14 @@ csv_encoding = 'utf-8'  # Replace with the appropriate encoding if needed
 data = read_data_from_csv(csv_file_path)
 
 
-
-
 @app.route("/")
 def hello_world():
-    df = pd.read_csv(read_file())
 
-    column_names = df.columns
-
-    """Example Hello World route."""
-    name = column_names
-    return f"Header is : {name}!"
+    sql = f"""
+        SELECT * FROM `{data_base_name}.{table_name}` order by id LIMIT 10
+    """
+    res = Exec_Query(sql)
+    return res
 
 
 @app.route("/api/search", methods=["GET"])
@@ -64,47 +70,58 @@ def search_data():
     if not query:
         return jsonify([])
 
-    # Perform a basic search on the data based on the 'query' parameter
-    results = []
-    for row in data:
-        for key, value in row.items():
-            if query.lower() in value.lower():
-                results.append(row)
-                break
-    if len(results) > int(limit):
-        return jsonify(results[:limit])
-    else:
-        return jsonify(results)
+    # Construct a BigQuery SQL query to search for data
+    sql = f"""
+    SELECT *
+    FROM `{data_base_name}.{table_name}`
+    WHERE LOWER(Product_Title) LIKE LOWER('%{query}%')
+    OR LOWER(Description) LIKE LOWER('%{query}%')
+    LIMIT {limit}
+    """
+    res = Exec_Query(sql)
+    return res
 
 
 @app.route("/api/products", methods=["GET"])
 def get_product():
-    product_id = request.args.get("id")
-    product_data = ''
-    # Replace this with your logic to fetch product data from a database or another source
-    for row in data:
-        for key, value in row.items():
-            if product_id in value:
-                product_data = row
-                break
+    id = request.args.get("id")
+    if id:
+        sql = f"""SELECT
+                    *
+                    FROM
+                    `disney-a2b9f.Wp_Products.products`
+                    WHERE
+                    id = {id}"""
 
-    return jsonify(product_data)
+        res = Exec_Query(sql)
+        return res
+    else:
+        return jsonify([])
 
 
 @app.route("/api/top_products", methods=["GET"])
 def top_product():
-    # Replace the following line to fetch your data from a source if needed
-    # product_data = data[30:46]
+    sql = """WITH ranked_products AS (
+                    SELECT
+                        *,
+                        ROW_NUMBER() OVER (PARTITION BY Category_id ORDER BY Category_id) AS rn
+                    FROM
+                        `disney-a2b9f.Wp_Products.products`
+                    )
 
-    # Select 16 random elements from the data list
-    product_data = data[30:46]
+                    SELECT
+                    *
+                    FROM
+                    ranked_products
+                    WHERE
+                    rn = 1
+                    ORDER BY
+                    category_id;"""
+    
+    res = Exec_Query(sql)
+    return res
 
-    return jsonify(product_data)
 
-
-@app.route("/api/data", methods=["GET"])
-def get_data():
-    return jsonify(data)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
