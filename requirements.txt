@@ -3,7 +3,6 @@ pyarrow
 flask_cors
 google-cloud
 google-cloud-storage
-google-cloud-bigquery
 db-dtypes
 pandas
 gunicorn
