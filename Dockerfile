@@ -7,7 +7,15 @@ ENV PYTHONUNBUFFERED True
 
 # Install CMake
 RUN apt-get update && apt-get install -y cmake
-
+RUN sudo apt-get install -y \
+    build-essential \
+    python3-dev \
+    libsnappy-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    liblz4-dev \
+    libgflags-dev \
+    libzstd-dev
 # Copy local code to the container image.
 ENV APP_HOME /app
 WORKDIR $APP_HOME
