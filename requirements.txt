@@ -2,7 +2,7 @@ flask
 flask_cors
 google-cloud
 google-cloud-storage
-google-cloud-bigquery[bqstorage,pandas]
+google-cloud-bigquery[all]
 pandas
 gunicorn
 Werkzeug
