@@ -2,7 +2,7 @@ flask
 flask_cors
 google-cloud
 google-cloud-storage
-google-cloud-bigquery
+google-cloud-bigquery --install-option='--upgrade'
 pandas
 gunicorn
 Werkzeug
